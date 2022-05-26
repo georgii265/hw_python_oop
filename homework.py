@@ -11,7 +11,7 @@ class InfoMessage:
         self.duration = duration
         self.distance = distance
         self.speed = speed
-        self.calories = speed
+        self.calories = calories
 
     def get_message(self) -> str:
         return (f'Тип тренировки: {self.training_type}; '
@@ -56,18 +56,20 @@ class Running(Training):
 
     COEFF_CALORIE_1 = 18
     COEFF_CALORIE_2 = 20
+    VMIN = 60
 
     def get_spent_calories(self) -> float:
+        """Метод расчёта калорий, его нужно переопределить."""
         return ((self.COEFF_CALORIE_1 * self.get_mean_speed()
                 - self.COEFF_CALORIE_2) * self.weight / self.M_IN_KM
-                * (self.duration))
+                * (self.duration * Running.VMIN))
 
 
 class SportsWalking(Training):
     """Тренировка: спортивная ходьба."""
 
-    COEFF_CALORIE_3 = 0.035
-    COEFF_CALORIE_4 = 0.029
+    COEFF_CALORIE_3: float = 0.035
+    COEFF_CALORIE_4: float = 0.029
 
     def __init__(self, action: int, duration: float,
                  weight: float, height: float) -> None:
@@ -75,15 +77,17 @@ class SportsWalking(Training):
         self.height = height
 
     def get_spent_calories(self) -> float:
+        """Получить количество затраченных калорий."""
         return (self.COEFF_CALORIE_3 * self.weight
                 + (self.get_mean_speed()**2 // self.height)
-                * self.COEFF_CALORIE_4 * self.weight) * self.duration
+                * self.COEFF_CALORIE_4 * self.weight) * (self.duration
+                                                         * Running.VMIN)
 
 
 class Swimming(Training):
     """Тренировка: плавание."""
-    COEFF_CALORIE_5 = 1.1
-    COEFF_CALORIE_6 = 2.0
+    COEFF_CALORIE_5: float = 1.1
+    COEFF_CALORIE_6: int = 2
     LEN_STEP: float = 1.38
 
     def __init__(self, action: int, duration: float, weight: float,
@@ -94,13 +98,16 @@ class Swimming(Training):
         self.count_pool = count_pool
 
     def get_distance(self) -> float:
+        """Получить дистанцию в км."""
         return (self.action * Swimming.LEN_STEP) / Training.M_IN_KM
 
     def get_mean_speed(self):
+        """Получить среднюю скорость движения."""
         return (self.length_pool * self.count_pool / Training.M_IN_KM
                 / self.duration)
 
     def get_spent_calories(self) -> float:
+        """Получить количество затраченных калорий."""
         return ((self.get_mean_speed() + self.COEFF_CALORIE_5)
                 * self.COEFF_CALORIE_6 * self.weight)
 
