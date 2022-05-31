@@ -1,6 +1,6 @@
 """dataclasses - Классы данных"""
 from dataclasses import dataclass, asdict
-from typing import Any, Dict
+from typing import Dict, Type
 
 
 @dataclass
@@ -11,15 +11,15 @@ class InfoMessage:
     distance: float
     speed: float
     calories: float
-    message: str = ('Тип тренировки: {}; '
-                    'Длительность: {:.3f} ч.; '
-                    'Дистанция: {:.3f} км; '
-                    'Ср. скорость: {:.3f} км/ч; '
-                    'Потрачено ккал: {:.3f}.')
+    message: str = ('Тип тренировки: {training_type}; '
+                    'Длительность: {duration:.3f} ч.; '
+                    'Дистанция: {distance:.3f} км; '
+                    'Ср. скорость: {speed:.3f} км/ч; '
+                    'Потрачено ккал: {calories:.3f}.')
 
     def get_message(self) -> str:
         """Возвращает строку сообщения."""
-        return self.message.format(*asdict(self).values())
+        return self.message.format(**asdict(self))
 
 
 class Training:
@@ -43,7 +43,8 @@ class Training:
 
     def get_spent_calories(self) -> float:
         """Получить количество затраченных калорий."""
-        raise NotImplementedError
+        # функция ничего ни делает
+        raise NotImplementedError(self.__class__.__name__ + '.get_spent_calories')
 
     def show_training_info(self) -> InfoMessage:
         """Вернуть информационное сообщение о выполненной тренировке."""
@@ -55,8 +56,8 @@ class Training:
 
 class Running(Training):
     """Тренировка: бег."""
-    FIRST_COEFF_CALORIE: int = 18
-    SECOND_COEFF_CALORIE: int = 20
+    FIRST_COEFF_CALORIE: float = 18
+    SECOND_COEFF_CALORIE: float = 20
 
     def get_spent_calories(self) -> float:
         """Получить количество затраченных калорий."""
@@ -112,7 +113,7 @@ class Swimming(Training):
 
 def read_package(workout: str, parameters: list) -> Training:
     """Прочитать данные полученные от датчиков."""
-    training_parameters: Dict[str, Any] = {
+    training_parameters: Dict[str, Type[Training]] = {
         'RUN': Running,
         'WLK': SportsWalking,
         'SWM': Swimming,
